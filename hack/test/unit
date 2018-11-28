@@ -16,7 +16,15 @@ TESTFLAGS+=" -test.timeout=${TIMEOUT:-5m}"
 BUILDFLAGS=( -tags "netgo seccomp libdm_no_deferred_remove" )
 TESTDIRS="${TESTDIRS:-"./..."}"
 
+TESTDIR_EXCLUDE=( /builder/dockerfile /builder/fscache /builder/remotecontext /daemon/graphdriver/quota /pkg/archive /pkg/chrootarchive /pkg/mount /pkg/system /plugin /volume/local )
+
 exclude_paths="/vendor/|/integration"
+if [ -n "${TESTNOPRIV:-}" ]; then
+  for p in ${TESTDIR_EXCLUDE[@]}; do
+    exclude_paths="$exclude_paths|$p"
+  done
+fi
+
 pkg_list=$(go list $TESTDIRS | grep -vE "($exclude_paths)")
 
 go test -cover "${BUILDFLAGS[@]}" $TESTFLAGS $pkg_list

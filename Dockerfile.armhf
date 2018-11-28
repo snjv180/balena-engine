@@ -15,7 +15,11 @@
 # the case. Therefore, you don't have to disable it anymore.
 #
 
-FROM arm32v7/debian:stretch
+FROM resin/raspberrypi3-debian:stretch
+
+# Enable QEMU emulation
+ENTRYPOINT [ "qemu-arm-static", "-execve" ]
+SHELL      [ "qemu-arm-static", "-execve", "/bin/sh", "-c" ]
 
 # allow replacing httpredir or deb mirror
 ARG APT_MIRROR=deb.debian.org
@@ -115,10 +119,10 @@ RUN git clone https://github.com/docker/docker-py.git /docker-py \
 RUN git config --global user.email 'docker-dummy@example.com'
 
 # Add an unprivileged user to be used for tests which need it
-RUN groupadd -r docker
-RUN useradd --create-home --gid docker unprivilegeduser
+RUN groupadd -r balena-engine
+RUN useradd --create-home --gid balena-engine unprivilegeduser
 
-VOLUME /var/lib/docker
+VOLUME /var/lib/balena-engine
 WORKDIR /go/src/github.com/docker/docker
 ENV DOCKER_BUILDTAGS apparmor seccomp selinux
 
@@ -141,10 +145,11 @@ RUN ./contrib/download-frozen-image-v2.sh /docker-frozen-images \
 # Please edit hack/dockerfile/install-binaries.sh to update them.
 COPY hack/dockerfile/binaries-commits /tmp/binaries-commits
 COPY hack/dockerfile/install-binaries.sh /tmp/install-binaries.sh
-RUN /tmp/install-binaries.sh tomlv vndr runc containerd tini proxy dockercli gometalinter
+RUN /tmp/install-binaries.sh tomlv vndr tini gometalinter
 ENV PATH=/usr/local/cli:$PATH
 
-ENTRYPOINT ["hack/dind"]
+# ENTRYPOINT ["hack/dind"]
+ENTRYPOINT ["/bin/bash"]
 
 # Options for hack/validate/gometalinter
 ENV GOMETALINTER_OPTS="--deadline 10m -j2"

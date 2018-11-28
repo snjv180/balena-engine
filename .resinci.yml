@@ -1,0 +1,10 @@
+docker:
+  builds:
+    - path: .
+      dockerfile: Dockerfile.x86_64
+    - path: .
+      dockerfile: Dockerfile.armhf
+    - path: .
+      dockerfile: Dockerfile.i386
+    - path: .
+      dockerfile: Dockerfile.aarch64
