@@ -107,7 +107,7 @@ func detectIptables() {
 }
 
 func initDependencies() {
-	probe()
+	//probe()
 	initFirewalld()
 	detectIptables()
 }
